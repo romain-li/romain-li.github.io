@@ -6,7 +6,7 @@
 favicon: /favicon.ico
 
 # Set default keywords (Use a comma to separate)
-keywords: ""
+keywords: "家肥包"
 
 # Set rss to false to disable feed link.
 # Leave rss as empty to use site's feed link.
@@ -17,7 +17,7 @@ rss:
 since: 2016
 
 # icon between year and author @Footer
-authoricon: heart
+authoricon: heart-o
 
 # Footer `powered-by` and `theme-info` copyright
 copyright: true
@@ -37,10 +37,10 @@ seo: true
 # When running the site in a subdirectory (e.g. domain.tld/blog), remove the leading slash (/archives -> archives)
 menu:
   home: /
-  categories: /categories
-  about: /about
+  #categories: /categories
+  #about: /about
   archives: /archives
-  #tags: /tags
+  tags: /tags
   #sitemap: /sitemap.xml
   #commonweal: /404.html
 
@@ -153,7 +153,7 @@ social_icons:
 # Sidebar Avatar
 # in theme directory(source/images): /images/avatar.jpg
 # in site  directory(source/uploads): /uploads/avatar.jpg
-#avatar:
+avatar: /images/avatar.jpg
 
 
 # Table Of Contents in the Sidebar

@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Developing
-subtitle:
+title: 施工中
+subtitle: 睡眠不足
 description:
 author: 家肥包
-language: en
+language: zh-Hans
 timezone: Asia/Shanghai
 
 # URL
@@ -44,7 +44,7 @@ highlight:
   tab_replace:
 
 # Category & Tag
-default_category: uncategorized
+default_category: 未分类
 category_map:
 tag_map:
 
