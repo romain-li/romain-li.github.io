@@ -17,6 +17,6 @@ hexo publish post <title>
 ### 服务器及部署
 
 ``` bash
-hexo server
-hexo deploy --generate
+hexo server --draft
+hexo generate --deploy
 ```

@@ -1,0 +1,20 @@
+language: node_js
+node_js: stable
+
+branches:
+  only:
+    - develop
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_5f2c2cb4e099_key -iv $encrypted_5f2c2cb4e099_iv -in .travis/ssh_key.enc -out ~/.ssh/id_rsa -d
+  - chmod 600 ~/.ssh/id_rsa
+  - git config --global user.name "romain-li"
+  - git config --global user.email "romain_li@163.com"
+
+install:
+  - npm install -g hexo-cli
+  - npm install
+
+script:
+  - hexo generate
+  - hexo deploy

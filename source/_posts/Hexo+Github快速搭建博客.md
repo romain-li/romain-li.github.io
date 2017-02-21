@@ -14,6 +14,7 @@ tags:
 
 > 类似的解决方案还有：Jekyll, Octopress, Medium, 简书, FarBox 等等。
 
+<!-- more -->
 
 ## 安装
 
@@ -29,23 +30,24 @@ tags:
 #### 安装Hexo
 
 ``` bash
-npm install -g hexo-cli
+$ npm install -g hexo-cli
 ```
 
 #### 建站
 
 ``` bash
-hexo init my-blog
-cd my-blog
-npm install
+$ hexo init my-blog
+$ cd my-blog
+$ npm install
+
 # 建议安装Git部署插件
-npm install hexo-deployer-git --save
+$ npm install hexo-deployer-git --save
 ```
 
 #### 写作
 
 ``` bash
-hexo new post <title>
+$ hexo new post <title>
 ```
 
 然后就能在`./source/_posts/<title>.md`找到并使用Markdown语法编辑文章了。
@@ -54,7 +56,7 @@ hexo new post <title>
 #### 预览
 
 ``` bash
-hexo s
+$ hexo server
 ```
 
 然后打开浏览器访问`http://localhost:4000/`即可访问。
@@ -65,7 +67,7 @@ hexo s
 以下以Next为例进行更换主题。
 
 ``` bash
-git clone https://github.com/iissnan/hexo-theme-next themes/next
+$ git clone https://github.com/iissnan/hexo-theme-next themes/next
 # 此时可删除原本的默认主题
 ```
 
@@ -90,15 +92,14 @@ deploy:
 上述设置中的branch为部署分支，与写作分支是相互独立的，观察默认的`.gitignore`文件就能够明白其工作原理。
 建议使用`develop`分支进行写作及版本控制，`master`分支进行部署。如果使用的不是同名仓库，可以使用`master`分支写作，`gh-pages`分支发布。
 
-确认文章完成并且设置正确后，使用以下命令发布博客：
-``` bash
-hexo d --generate
+```bash
+$ git checkout -b develop
 ```
 
-
-## 自动部署
-
-利用Travis-CI应该能够实现博客的自动部署，需要一些`.travis.yml`的设置并授权，此处未完待续。
+确认文章完成并且设置正确后，使用以下命令发布博客：
+``` bash
+$hexo generate --deploy
+```
 
 
 ## 参考资料
