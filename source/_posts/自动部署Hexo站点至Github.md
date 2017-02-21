@@ -44,6 +44,10 @@ date: 2017-02-21 15:20:46
 
 ## 配置
 
+### 注册Travis CI
+
+首先，可以使用Github账号直接注册一个[Travis CI](https://travis-ci.org)账号，并打开对应的仓库的自动集成功能。
+
 ### 准备SSH Key
 
 创建SSH Key
@@ -105,6 +109,7 @@ Host github.com
 ### 配置.travis.yml
 
 修改之前复制的包含KV对的命令，并建立`.travis.yml`文件。
+注意配置中的`branches`项需要根据Hexo仓库配置做对应调整。
 
 ```yaml
 language: node_js
@@ -141,8 +146,10 @@ The command "hexo deploy" exited with 0.
 Done. Your build exited with 0.
 ```
 
+此后的每次提交，Travis CI便能自动集成并部署至Github了。
+
 
 ## 参考资料
 
-- https://help.github.com/articles/connecting-to-github-with-ssh/
-- https://docs.travis-ci.com/user/getting-started/
+- [SSH Key 相关介绍](https://help.github.com/articles/connecting-to-github-with-ssh/)
+- [Travis CI 帮助文档](https://docs.travis-ci.com/user/getting-started/)
