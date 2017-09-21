@@ -11,11 +11,13 @@ before_install:
   - cp .travis/ssh_config ~/.ssh/config
   - git config --global user.name "romain-li"
   - git config --global user.email "romain_li@163.com"
+  - git submodule init
+  - git submodule update
 
 install:
   - npm install -g hexo-cli
   - npm install --quiet
 
 script:
-  - hexo generate
+  - hexo generate --config source/_data/next.yml
   - hexo deploy
