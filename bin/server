@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+hexo server --draft --config source/_data/next.yml

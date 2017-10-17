@@ -150,3 +150,13 @@ social_icons:
 
 # Sidebar Avatar
 avatar: /images/avatar.jpg
+
+
+# ---------------------------------------------------------------
+# Third Party Services Settings
+# ---------------------------------------------------------------
+
+# MathJax Support
+mathjax:
+  enable: true
+  cdn: //cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML

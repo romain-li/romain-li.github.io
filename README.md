@@ -14,9 +14,8 @@ hexo new draft <title>
 hexo publish post <title>
 ```
 
-### 服务器及部署
+### 启动写作环境
 
 ``` bash
-hexo server --draft
-hexo generate --deploy
+bin/server
 ```
