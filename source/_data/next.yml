@@ -160,3 +160,6 @@ avatar: /images/avatar.jpg
 mathjax:
   enable: true
   cdn: //cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML
+
+# Google Analytics
+google_analytics: UA-112588543-1
