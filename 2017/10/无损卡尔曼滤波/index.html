@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="无人驾驶," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="简介重拾课程，记录一些笔记供以后查阅，本文基于课程先前几章的内容，所以略过了部分基础概念。之前的课程中使用了扩展阿尔曼滤波算法(EKF)完成了车辆追踪的算法，但是其对于非直线行进的车辆有着精度不高，反应迟钝等缺点，并且求导的Jacobian矩阵也非常难以计算。于是使用了无损卡尔曼滤波的算法，该算法不再需要对非线性运动进行线性化，并结合车辆的运动特点，使用了新的状态向量。">
+<meta name="keywords" content="无人驾驶">
+<meta property="og:type" content="article">
+<meta property="og:title" content="无损卡尔曼滤波">
+<meta property="og:url" content="http://romain-li.github.io/2017/10/无损卡尔曼滤波/index.html">
+<meta property="og:site_name" content="逻辑蛮力">
+<meta property="og:description" content="简介重拾课程，记录一些笔记供以后查阅，本文基于课程先前几章的内容，所以略过了部分基础概念。之前的课程中使用了扩展阿尔曼滤波算法(EKF)完成了车辆追踪的算法，但是其对于非直线行进的车辆有着精度不高，反应迟钝等缺点，并且求导的Jacobian矩阵也非常难以计算。于是使用了无损卡尔曼滤波的算法，该算法不再需要对非线性运动进行线性化，并结合车辆的运动特点，使用了新的状态向量。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://s3.cn-north-1.amazonaws.com.cn/u-img/c066117b-3e2e-4167-90ea-4bd38c3516dc">
+<meta property="og:image" content="http://romain-li.github.io/images/CarND/UKFBasicsUnscentedTransformation.png">
+<meta property="og:image" content="http://romain-li.github.io/images/CarND/MeasurementPrediction.png">
+<meta property="og:image" content="http://romain-li.github.io/images/CarND/UKFUpdate.png">
+<meta property="og:updated_time" content="2018-10-15T13:59:28.560Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="无损卡尔曼滤波">
+<meta name="twitter:description" content="简介重拾课程，记录一些笔记供以后查阅，本文基于课程先前几章的内容，所以略过了部分基础概念。之前的课程中使用了扩展阿尔曼滤波算法(EKF)完成了车辆追踪的算法，但是其对于非直线行进的车辆有着精度不高，反应迟钝等缺点，并且求导的Jacobian矩阵也非常难以计算。于是使用了无损卡尔曼滤波的算法，该算法不再需要对非线性运动进行线性化，并结合车辆的运动特点，使用了新的状态向量。">
+<meta name="twitter:image" content="https://s3.cn-north-1.amazonaws.com.cn/u-img/c066117b-3e2e-4167-90ea-4bd38c3516dc">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://romain-li.github.io/2017/10/无损卡尔曼滤波/"/>
+
+
+
+
+
+  <title>无损卡尔曼滤波 | 逻辑蛮力</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-112588543-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逻辑蛮力</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">技术宅基地</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://romain-li.github.io/2017/10/无损卡尔曼滤波/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="家肥包">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逻辑蛮力">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">无损卡尔曼滤波</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-17T15:54:01+00:00">
+                2017-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>重拾课程，记录一些笔记供以后查阅，本文基于课程先前几章的内容，所以略过了部分基础概念。<br>之前的课程中使用了扩展阿尔曼滤波算法(EKF)完成了车辆追踪的算法，但是其对于非直线行进的车辆有着精度不高，反应迟钝等缺点，并且求导的Jacobian矩阵也非常难以计算。于是使用了无损卡尔曼滤波的算法，该算法不再需要对非线性运动进行线性化，并结合车辆的运动特点，使用了新的状态向量。</p>
+<a id="more"></a>
+<h2 id="CTRV模型"><a href="#CTRV模型" class="headerlink" title="CTRV模型"></a>CTRV模型</h2><h3 id="CTRV状态向量"><a href="#CTRV状态向量" class="headerlink" title="CTRV状态向量"></a>CTRV状态向量</h3><img src="https://s3.cn-north-1.amazonaws.com.cn/u-img/c066117b-3e2e-4167-90ea-4bd38c3516dc" title="CTRV模型">
+<p>状态向量：<br>
+$$
+x = \begin{bmatrix}
+	p_x \\
+	p_y \\
+	v \\
+	\psi \\
+	\dot \psi \\
+\end{bmatrix}
+$$
+<br>由于车辆轮胎转向的特性，CTRV模型能够更好地描述其状态。<br>如图所示，其中 $\psi$ 为车辆行进方向的角度，而 $\dot \psi$ 为车辆的转向速度。</p>
+<h3 id="CTRV模型的状态方程"><a href="#CTRV模型的状态方程" class="headerlink" title="CTRV模型的状态方程"></a>CTRV模型的状态方程</h3><p>假设状态方程如下：<br>$$ x_{k+1} = f(x_k, \nu_k) $$</p>
+<p>其中的噪声 $\nu_k$ 暂不考虑。</p>
+<p>可求得状态变化率：<br>
+$$
+\dot x = \begin{bmatrix}
+	\dot p_x \\
+	\dot p_y \\
+	\dot v \\
+	\dot \psi \\
+	\ddot \psi \\
+\end{bmatrix}
+= \begin{bmatrix}
+	cos(\psi) \cdot v \\
+	sin(\psi) \cdot v \\
+	0 \\
+	\dot \psi \\
+	0 \\
+\end{bmatrix}
+$$
+</p>
+<p>则不考虑噪声的状态方程为：<br>
+$$
+\begin{equation}\begin{split}
+x_{k+1} = x_k + \int_{t_{k}}^{t_k+1}
+\begin{bmatrix}
+	\dot p_x(t) \\
+	\dot p_y(t) \\
+	\dot v(t) \\
+	\dot \psi(t) \\
+	\ddot \psi(t) \\
+\end{bmatrix}dt
+&= x_k + \begin{bmatrix}
+	v_k \int_{t_{k}}^{t_k+1} cos(\psi_k + \dot \psi_k \cdot (t - t_k))dt \\
+	v_k \int_{t_{k}}^{t_k+1} sin(\psi_k + \dot \psi_k \cdot (t - t_k))dt \\
+	0 \\
+	\dot \psi_k \Delta t \\
+	0 \\
+\end{bmatrix} \\
+&= x_k + \begin{bmatrix}
+	\frac {v_k}{\dot \psi_k} (sin(\psi_k + \dot \psi_k \Delta t) - sin(\psi_k)) \\
+	\frac {v_k}{\dot \psi_k} (-cos(\psi_k + \dot \psi_k \Delta t) + cos(\psi_k)) \\
+	0 \\
+	\dot \psi_k \Delta t \\
+	0 \\
+\end{bmatrix}
+\end{split}\end{equation}
+$$
+</p>
+<p>当 $\dot \psi_k = 0$ 时，积分方程会遇到除零的问题，在这种特殊情况下，车辆实际是做的直线运动，状态方程能够非常简单地计算：<br>
+$$
+x_{k+1}
+= x_k + \begin{bmatrix}
+	v_k cos(\psi_k) \Delta t \\
+	v_k sin(\psi_k) \Delta t \\
+	0 \\
+	0 \\
+	0 \\
+\end{bmatrix}
+$$
+</p>
+<h3 id="噪声"><a href="#噪声" class="headerlink" title="噪声"></a>噪声</h3><p>接下来要讨论状态方程中不确定的部分，其中加速度与转向加速度都是数学期望为零的白噪声，而位置噪声的计算相对比较复杂，在此使用了便于计算的近似值，因为大部分情况下，汽车是以近似直线的方式行进的。</p>
+
+$$
+\nu_k = \begin{bmatrix}
+	\nu_{a, k} \\
+	\nu_{\ddot \psi, k} \\
+\end{bmatrix}
+$$
+
+<p>$$ \nu_{a, k} \sim N(0, \sigma^2_a) $$</p>
+
+$$ \nu_{\ddot \psi, k} \sim N(0, \sigma^2_{\ddot \psi}) $$
+
+<p>所以考虑到噪声之后，状态方程则变为了：</p>
+
+$$
+\begin{equation}\begin{split}
+x_{k+1} = x_k + \begin{bmatrix}
+	\frac {v_k}{\dot \psi_k} (sin(\psi_k + \dot \psi_k \Delta t) - sin(\psi_k)) \\
+	\frac {v_k}{\dot \psi_k} (-cos(\psi_k + \dot \psi_k \Delta t) + cos(\psi_k)) \\
+	0 \\
+	\dot \psi_k \Delta t \\
+	0 \\
+\end{bmatrix} + \begin{bmatrix}
+	\frac {1}{2} (\Delta t)^2 cos(\psi_k) \cdot \nu_{a, k} \\
+	\frac {1}{2} (\Delta t)^2 sin(\psi_k) \cdot \nu_{a, k} \\
+	\Delta t \cdot \nu_{a, k} \\
+	\frac {1}{2} (\Delta t)^2 \cdot \nu_{\ddot \psi, k} \\
+	\Delta t \cdot \nu_{\ddot \psi, k} \\
+\end{bmatrix}
+\end{split}\end{equation}
+$$
+
+<h2 id="无损卡尔曼滤波-UKF"><a href="#无损卡尔曼滤波-UKF" class="headerlink" title="无损卡尔曼滤波 (UKF)"></a>无损卡尔曼滤波 (UKF)</h2><p>在整个卡尔曼滤波的计算过程中，状态向量会以期望值及协方差矩阵来表示其预测分布，但对于非线性的状态方程，其先验概率的预测将不再是一个标准分布。为了能使整个滤波算法正常完成，需要计算一个近似的标准分布，无损卡尔曼滤波使用了以下方式来完成滤波：</p>
+<p><strong>预测</strong></p>
+<ul>
+<li>生成Sigma点</li>
+<li>通过状态方程变换来预测Sigma点</li>
+<li>通过预测的Sigma点来计算结果的期望值和协方差矩阵</li>
+</ul>
+<p><strong>测量</strong></p>
+<ul>
+<li>测量值预测</li>
+<li>UKF状态更新</li>
+</ul>
+<img src="/images/CarND/UKFBasicsUnscentedTransformation.png" title="图中的蓝星即为Sigma点">
+<h3 id="生成Sigma点"><a href="#生成Sigma点" class="headerlink" title="生成Sigma点"></a>生成Sigma点</h3><p>Sigma点生成规则：</p>
+
+$$
+X_{k|k} = \begin{bmatrix}
+	x_{k|k} &
+	x_{k|k} + \sqrt{(\lambda + n_x)P_{k|k}} &
+	x_{k|k} - \sqrt{(\lambda + n_x)P_{k|k}}
+\end{bmatrix}
+$$
+
+<p>无损变换会选取 $2n_x + 1$ 个Sigma点，由于CTRV的状态向量拥有5个维度，所以会选取11个Sigma点。<br>一般情况下，建议$\lambda = 3 - n_x$，$n_x$为状态向量的维度。</p>
+<h3 id="扩展Sigma点"><a href="#扩展Sigma点" class="headerlink" title="扩展Sigma点"></a>扩展Sigma点</h3><p>虽然我们已经将噪声考虑进了状态方程，但是如何将其纳入卡尔曼滤波的协方差矩阵变换？<br>考虑到噪声向量的独立性，并且与时间没有相关性，所以其协方差矩阵为：</p>
+
+$$
+Q = E\begin{Bmatrix}
+	\nu_k\cdot\nu_k^T
+\end{Bmatrix} = \begin{bmatrix}
+	\sigma_a^2 & 0 \\
+	0 & \sigma_{\ddot\psi}^2 \\
+\end{bmatrix}
+$$
+
+<p>在此有个极其简单的方法将其纳入UKF的计算过程，扩展状态向量：</p>
+
+$$
+x_{a,k} = \begin{bmatrix}
+	p_x \\
+	p_y \\
+	v \\
+	\psi \\
+	\dot \psi \\
+	\nu_a \\
+	\nu_{\ddot\psi} \\
+\end{bmatrix}
+$$
+
+<p>则扩展后的协方差矩阵为：</p>
+
+$$
+P_{a,k|k} = \begin{bmatrix}
+	P_{k|k} & 0 \\
+	0 & Q \\
+\end{bmatrix}
+$$
+
+<p>扩展后的Sigma点生成规则：</p>
+
+$$
+n_a = 7 \\
+X_{a,k|k} = \begin{bmatrix}
+	x_{a,k|k} &
+	x_{a,k|k} + \sqrt{(\lambda + n_a)P_{a,k|k}} &
+	x_{a,k|k} - \sqrt{(\lambda + n_a)P_{a,k|k}}
+\end{bmatrix}
+$$
+
+<h3 id="预测期望值及协方差矩阵"><a href="#预测期望值及协方差矩阵" class="headerlink" title="预测期望值及协方差矩阵"></a>预测期望值及协方差矩阵</h3><p>预测期望值<br>
+$$ x_{k+1|k} = \sum_{i=0}^{n_\sigma}w_i X_{k+1|k,i} $$
+</p>
+<p>预测协方差矩阵<br>
+$$ P_{k+1|k} = \sum_{i=0}^{2n_\sigma}w_i(X_{k+1|k,i} - x_{k+1|k})(X_{k+1|k,i} - x_{k+1|k})^T$$
+</p>
+<p>其中权重：<br>
+$$
+w_i =
+\begin{cases}
+\frac{\lambda}{\lambda + n_\sigma},  & i=0 \\
+\frac{1}{2(\lambda + n_\sigma)},     & i=2...n_\sigma
+\end{cases}
+$$
+</p>
+<h3 id="测量值预测"><a href="#测量值预测" class="headerlink" title="测量值预测"></a>测量值预测</h3><p>由于测量的方式不同，我们必须先将Sigma点的预测值 $X_{k+1|k}$ 通过测量模型转换到测量空间中获得 $Z_{k+1|k}$，然后计算测量期望值以及其协方差矩阵。</p>
+<img src="/images/CarND/MeasurementPrediction.png">
+<h3 id="UKF状态更新"><a href="#UKF状态更新" class="headerlink" title="UKF状态更新"></a>UKF状态更新</h3><p>通过Sigma点以及其测量空间转换后的计算，我们获得了预测状态的分布与预测测量空间的分布，结合卡尔曼滤波的算法，我们能够很容易的更新当前状态的后验分布：</p>
+<img src="/images/CarND/UKFUpdate.png">
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Kalman_filter#Unscented_Kalman_filter" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Kalman_filter#Unscented_Kalman_filter</a></li>
+<li><a href="http://blog.csdn.net/zoe_su/article/details/52506219" target="_blank" rel="noopener">http://blog.csdn.net/zoe_su/article/details/52506219</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/无人驾驶/" rel="tag"># 无人驾驶</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/初次安装树莓派/" rel="next" title="初次安装树莓派">
+                <i class="fa fa-chevron-left"></i> 初次安装树莓派
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/数据结构-绪论（上）/" rel="prev" title="数据结构 - 绪论（上）">
+                数据结构 - 绪论（上） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="家肥包" />
+          
+            <p class="site-author-name" itemprop="name">家肥包</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/romain-li" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i></a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CTRV模型"><span class="nav-number">2.</span> <span class="nav-text">CTRV模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CTRV状态向量"><span class="nav-number">2.1.</span> <span class="nav-text">CTRV状态向量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CTRV模型的状态方程"><span class="nav-number">2.2.</span> <span class="nav-text">CTRV模型的状态方程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#噪声"><span class="nav-number">2.3.</span> <span class="nav-text">噪声</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无损卡尔曼滤波-UKF"><span class="nav-number">3.</span> <span class="nav-text">无损卡尔曼滤波 (UKF)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#生成Sigma点"><span class="nav-number">3.1.</span> <span class="nav-text">生成Sigma点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展Sigma点"><span class="nav-number">3.2.</span> <span class="nav-text">扩展Sigma点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#预测期望值及协方差矩阵"><span class="nav-number">3.3.</span> <span class="nav-text">预测期望值及协方差矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测量值预测"><span class="nav-number">3.4.</span> <span class="nav-text">测量值预测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UKF状态更新"><span class="nav-number">3.5.</span> <span class="nav-text">UKF状态更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 &mdash; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart-o"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">家肥包</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

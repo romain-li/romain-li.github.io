@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="数据结构," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="本文为学堂在线数据结构课程的学习笔记。  计算本课程需要研究在计算的过程中所蕴含的本质的内在规律，总结和挖掘出其中的一般性方法以及典型技巧，实现高效的计算，同时也要在资源的消耗方面做到足够的低廉。 Dijkstra 说：所谓的计算机，无非是我们的一个工具和手段，而计算才是最终的研究目的和目标。  Computer science should be called computing scienc">
+<meta name="keywords" content="数据结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构 - 绪论（上）">
+<meta property="og:url" content="http://romain-li.github.io/2018/10/数据结构-绪论（上）/index.html">
+<meta property="og:site_name" content="逻辑蛮力">
+<meta property="og:description" content="本文为学堂在线数据结构课程的学习笔记。  计算本课程需要研究在计算的过程中所蕴含的本质的内在规律，总结和挖掘出其中的一般性方法以及典型技巧，实现高效的计算，同时也要在资源的消耗方面做到足够的低廉。 Dijkstra 说：所谓的计算机，无非是我们的一个工具和手段，而计算才是最终的研究目的和目标。  Computer science should be called computing scienc">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://romain-li.github.io/images/DSA/C1-1.png">
+<meta property="og:updated_time" content="2018-10-15T13:59:28.560Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据结构 - 绪论（上）">
+<meta name="twitter:description" content="本文为学堂在线数据结构课程的学习笔记。  计算本课程需要研究在计算的过程中所蕴含的本质的内在规律，总结和挖掘出其中的一般性方法以及典型技巧，实现高效的计算，同时也要在资源的消耗方面做到足够的低廉。 Dijkstra 说：所谓的计算机，无非是我们的一个工具和手段，而计算才是最终的研究目的和目标。  Computer science should be called computing scienc">
+<meta name="twitter:image" content="http://romain-li.github.io/images/DSA/C1-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://romain-li.github.io/2018/10/数据结构-绪论（上）/"/>
+
+
+
+
+
+  <title>数据结构 - 绪论（上） | 逻辑蛮力</title>
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-112588543-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逻辑蛮力</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">技术宅基地</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://romain-li.github.io/2018/10/数据结构-绪论（上）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="家肥包">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逻辑蛮力">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">数据结构 - 绪论（上）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-09T09:05:38+00:00">
+                2018-10-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文为学堂在线<a href="http://www.xuetangx.com/courses/course-v1:TsinghuaX+30240184+sp/about" target="_blank" rel="noopener">数据结构</a>课程的学习笔记。</p>
+</blockquote>
+<h2 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h2><p>本课程需要研究在计算的过程中所蕴含的本质的内在<strong>规律</strong>，总结和挖掘出其中的一般性方法以及典型<strong>技巧</strong>，实现<strong>高效</strong>的计算，同时也要在资源的消耗方面做到足够的<strong>低廉</strong>。</p>
+<p>Dijkstra 说：所谓的计算机，无非是我们的一个工具和手段，而计算才是最终的研究目的和目标。</p>
+<blockquote>
+<p>Computer science should be called computing science, for the same reason why surgery is not called knife science.<br>- E. Dijkstra</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h3><p>所谓算法，即特定计算机模型下，旨在解决特定问题的指令序列。</p>
+<ul>
+<li>输入：待处理的信息（问题）；</li>
+<li>输出：经处理的信息（答案）；</li>
+<li>正确性：的确可以解决指定的问题；</li>
+<li>确定性：任一算法都可以描述为一个由基本操作组成的序列；</li>
+<li>可行性：每一基本操作都可实现，且在常数时间内完成；</li>
+<li>有穷性：对于任何输入，经有穷次基本操作，都可以得到输出；</li>
+</ul>
+<p>程序未必是算法，例如遇到死循环，但有穷性作为一个侧面要求，并不能简单确定（参考<a href="https://zh.wikipedia.org/wiki/%E5%81%9C%E6%9C%BA%E9%97%AE%E9%A2%98" target="_blank" rel="noopener">停机问题</a>），本课程不做深入探讨。</p>
+<h3 id="好算法"><a href="#好算法" class="headerlink" title="好算法"></a>好算法</h3><ul>
+<li>正确：能够编译，并处理各种合法的输入</li>
+<li>健壮：对不合适输入做适当处理</li>
+<li>可读：结构化 + 准确命名 + 注释 + …</li>
+<li><strong>效率</strong>：速度尽可能快；存储空间尽可能少</li>
+</ul>
+<blockquote>
+<p>算法 + 数据结构 = 程序<br>(算法 + 数据结构) * 效率 = 计算</p>
+</blockquote>
+<h2 id="计算模型"><a href="#计算模型" class="headerlink" title="计算模型"></a>计算模型</h2><h3 id="性能测度"><a href="#性能测度" class="headerlink" title="性能测度"></a>性能测度</h3><p>计算是数据结构和算法的有机结合，所以笼统地称之为 <code>DSA</code> (Data Structure + Algorithm)。<br>其好坏优劣是从它的效率而言的，实际应用中就需要能够定量地度量。</p>
+<blockquote>
+<p>To measure is to know.<br>If you can not  measure it, you can not improve it.<br>- Lord kelvin</p>
+</blockquote>
+<h3 id="问题规模"><a href="#问题规模" class="headerlink" title="问题规模"></a>问题规模</h3><p>成本：运行时间 + 所需存储空间，问题实例的规模，往往是决定计算成本的主要因素。<br>通常问题规模接近，计算成本也接近；问题规模扩大，计算成本也随之上升。</p>
+<h3 id="最坏情况"><a href="#最坏情况" class="headerlink" title="最坏情况"></a>最坏情况</h3><p>同一问题等规模的不同实例，计算成本也不尽相同，甚至有实质差别。<br>所以，在规模同为 n 的所有实例中，只关注最坏情况。</p>
+<h3 id="理想模型"><a href="#理想模型" class="headerlink" title="理想模型"></a>理想模型</h3><p>实验统计最直接，但不足以准确反映算法的真正效率</p>
+<ul>
+<li>不同的算法，可能更适应不同<strong>规模</strong>的输入；</li>
+<li>不同的算法，可能更适应不同<strong>类型</strong>的输入；</li>
+<li>同一算法，可能由于不同<strong>程序员</strong>、用不同程序<strong>语言</strong>、经不同<strong>编译器</strong>实现；</li>
+<li>同一算法，可能实现并运行于不同的<strong>体系架构</strong>、<strong>操作系统</strong>…</li>
+</ul>
+<p>所以需要抽象出一个<strong>理想</strong>的平台或模型，不再依赖上述种种具体的因素，给出<strong>客观</strong>的评判。<br>于是，提出了图灵机和 RAM 模型，用以评估算法的效率。</p>
+<h3 id="图灵机"><a href="#图灵机" class="headerlink" title="图灵机"></a>图灵机</h3><p>参考：<a href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E7%81%B5%E6%9C%BA" target="_blank" rel="noopener">图灵机</a></p>
+<h3 id="RAM-模型"><a href="#RAM-模型" class="headerlink" title="RAM 模型"></a>RAM 模型</h3><p>RAM: Random Access Machine</p>
+<ul>
+<li>寄存器顺序编号，总数没有限制</li>
+<li>每一基本操作仅需常数时间<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">R[i] &lt;- c</span><br><span class="line">R[i] &lt;- R[R[j]]</span><br><span class="line">R[i] &lt;- R[j] + R[k]</span><br><span class="line">R[i] &lt;- R[j]</span><br><span class="line">R[R[i]] &lt;- R[j]</span><br><span class="line">R[i] &lt;- R[j] - R[k]</span><br><span class="line">IF R[i] = 0 GOTO 1</span><br><span class="line">IF R[i] &gt; 0 GOTO 1</span><br><span class="line">GOTO 1</span><br><span class="line">STOP</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>在这些模型中，算法的运行时间与执行的基本操作次数正相关。</p>
+<p>这里是一个向下取整除法的 <code>RAM</code> 实例，用 <code>c</code> 除以 <code>d</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">R[3] &lt;- 1</span><br><span class="line">R[0] &lt;- R[0] + R[3]		// R[0] = c + 1</span><br><span class="line">R[0] &lt;- R[0] - R[1]		// c -= d</span><br><span class="line">R[2] &lt;- R[2] + R[3]		// x += 1</span><br><span class="line">IF R[0] &gt; 0 GOTO 3		// IF c &gt; 0 GOTO 3</span><br><span class="line">R[0] &lt;- R[2] - R[3]		// ELSE x -= 1</span><br><span class="line">STOP				// RETURN  R[0] = x</span><br></pre></td></tr></table></figure></p>
+<p>对于一个 12 除以 5 的计算实例，对寄存器作一罗列后，最终得到了结果 2</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Step</th>
+<th style="text-align:center">IR</th>
+<th style="text-align:center">R[0]</th>
+<th style="text-align:center">R[1]</th>
+<th style="text-align:center">R[2]</th>
+<th style="text-align:center">R[3]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">12</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+<td style="text-align:center">^</td>
+</tr>
+</tbody>
+</table>
+<p>表格的行数，就是执行的基本操作次数，即性能的度量。</p>
+<h2 id="大-O-记号"><a href="#大-O-记号" class="headerlink" title="大 O 记号"></a>大 O 记号</h2><p>对于算法，更关注其主要的、长远的变化趋势，而不是局部的，细微的，暂时的趋势。<br>当 n 足够大时，通过大 O 记号更加简洁地反映算法的时间或空间复杂度。</p>
+<ul>
+<li>常系数可以忽略：$O(f(n)) = O(c \times f(n))$</li>
+<li>低次项可以忽略：$O(n^a + n^b) = O(n^a), a &gt; b &gt; 0$</li>
+</ul>
+<p>大 O 记号表示了复杂度的上界，另外还有 $\Omega$ 和 $\Theta$ 分别表示复杂度的下界和确界。</p>
+<img src="/images/DSA/C1-1.png">
+<h3 id="高效解"><a href="#高效解" class="headerlink" title="高效解"></a>高效解</h3><h4 id="常数-O-1"><a href="#常数-O-1" class="headerlink" title="常数 $ O(1) $"></a>常数 $ O(1) $</h4><p>表示常数复杂度，是最好的复杂度了，通常是不含转向（循环、调用、递归等）顺序执行的代码。<br>$$ 2 = 2013 = 2013 \times 2013 = 2013 ^ {2013} = O(1) $$</p>
+<h4 id="对数-O-log-c-n"><a href="#对数-O-log-c-n" class="headerlink" title="对数 $ O(log^c n) $"></a>对数 $ O(log^c n) $</h4><p>这类算法非常有效，复杂度无限接近于常数。<br>$$ lnn | lgn | log_{100} n | log_{2013} n = O(logn) $$</p>
+<ul>
+<li>常底数无所谓<br>$$ log_a n = log_a b \times log_b n = \Theta(log_b n) $$</li>
+<li>常数次幂无所谓<br>$$ logn^c = c \cdot logn = \Theta(log n) $$</li>
+<li>对数多项式忽略低次项<br>$$ 123 * log^{321} n + log^{105}(n^2 - n + 1) = \Theta(log^{321} n) $$</li>
+</ul>
+<h3 id="有效解"><a href="#有效解" class="headerlink" title="有效解"></a>有效解</h3><h4 id="多项式-O-n-c"><a href="#多项式-O-n-c" class="headerlink" title="多项式 $ O(n^c) $"></a>多项式 $ O(n^c) $</h4><p>编程习题主要覆盖的范围都是从 $ O(n) $ 到 $ O(n^2) $。<br>这类算法的效率通常认为已可令人满意，可解而至少不是难解。</p>
+<h3 id="难解"><a href="#难解" class="headerlink" title="难解"></a>难解</h3><h4 id="指数-O-2-n"><a href="#指数-O-2-n" class="headerlink" title="指数 $ O(2^n) $"></a>指数 $ O(2^n) $</h4><p>这类算法的计算成本增长极快，通常认为不可忍受。<br>从 $ O(n^c) $ 到 $ O(2^n) $，是从有效算法到无效算法的分水岭。<br>很多问题的 $ O(2^n) $ 算法往往显而易见，然而设计出 $ O(n^c) $ 算法却及其不易。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>所谓算法，即特定计算机模型下，旨在解决特定问题的指令序列。</li>
+<li>好算法最重要的是：速度尽可能快；存储空间尽可能少。</li>
+<li>通常使用图灵机或者寄存器模型，大 O 记号通过大规模输入对算法进行评估。</li>
+<li>算法的效率：$ O(1) &gt; O(log^c n) &gt; O(n^c) &gt; O(2^n) $</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/无损卡尔曼滤波/" rel="next" title="无损卡尔曼滤波">
+                <i class="fa fa-chevron-left"></i> 无损卡尔曼滤波
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/images/avatar.jpg"
+              alt="家肥包" />
+          
+            <p class="site-author-name" itemprop="name">家肥包</p>
+            <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/romain-li" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i></a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#计算"><span class="nav-number">1.</span> <span class="nav-text">计算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法"><span class="nav-number">1.1.</span> <span class="nav-text">算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好算法"><span class="nav-number">1.2.</span> <span class="nav-text">好算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算模型"><span class="nav-number">2.</span> <span class="nav-text">计算模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#性能测度"><span class="nav-number">2.1.</span> <span class="nav-text">性能测度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题规模"><span class="nav-number">2.2.</span> <span class="nav-text">问题规模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最坏情况"><span class="nav-number">2.3.</span> <span class="nav-text">最坏情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#理想模型"><span class="nav-number">2.4.</span> <span class="nav-text">理想模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图灵机"><span class="nav-number">2.5.</span> <span class="nav-text">图灵机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RAM-模型"><span class="nav-number">2.6.</span> <span class="nav-text">RAM 模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大-O-记号"><span class="nav-number">3.</span> <span class="nav-text">大 O 记号</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#高效解"><span class="nav-number">3.1.</span> <span class="nav-text">高效解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#常数-O-1"><span class="nav-number">3.1.1.</span> <span class="nav-text">常数 $ O(1) $</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对数-O-log-c-n"><span class="nav-number">3.1.2.</span> <span class="nav-text">对数 $ O(log^c n) $</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有效解"><span class="nav-number">3.2.</span> <span class="nav-text">有效解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#多项式-O-n-c"><span class="nav-number">3.2.1.</span> <span class="nav-text">多项式 $ O(n^c) $</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#难解"><span class="nav-number">3.3.</span> <span class="nav-text">难解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#指数-O-2-n"><span class="nav-number">3.3.1.</span> <span class="nav-text">指数 $ O(2^n) $</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 &mdash; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart-o"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">家肥包</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
